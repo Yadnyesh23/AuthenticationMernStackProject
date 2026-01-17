@@ -30,6 +30,10 @@ const userSchema = new Schema(
             minlength: [6, "Password must be at least 6 characters"],
             select: false,
         },
+        refreshToken: {
+            type: String,
+            select: false, 
+        }
     },
     {
         timestamps: true,
@@ -66,11 +70,11 @@ userSchema.methods.generateRefreshToken = function () {
 
 
 
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
 
     this.password = await bcrypt.hash(this.password, 10);
-    next();
+    
 });
 
 

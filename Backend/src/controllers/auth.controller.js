@@ -2,7 +2,7 @@ import asyncHandler from '../utils/AsyncHandler.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import ApiError from '../utils/ApiError.js';
 import { User } from '../models/user.model.js';
-import bcrypt from 'bcrypt'
+
 // @desc Register User
 // @route POST /api/auth/register
 // @access PUBLIC
@@ -55,9 +55,12 @@ const loginUser = asyncHandler(async (req, res) => {
     const accessToken = existedUser.generateAccessToken();
     const refreshToken = existedUser.generateRefreshToken();
 
+    existedUser.refreshToken = refreshToken;
+    await existedUser.save({ validateBeforeSave: false })
+
     const loggedInUser = await User.findById(existedUser._id).select("-password");
 
-    res.status(201).json(new ApiResponse(201, "User login successful.", {user:loggedInUser, accessToken, refreshToken}))
+    res.status(201).json(new ApiResponse(201, "User login successful.", { user: loggedInUser, accessToken, refreshToken }))
 })
 
 
@@ -65,7 +68,11 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route POST /api/auth/logout
 // @access PRIVATE
 const logoutUser = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, "User logout successful."))
+    await User.findByIdAndUpdate(
+        await req.user._id,
+        { $unset: { refreshToken: 1 } }
+    )
+    res.status(200).json(new ApiResponse(200, "User logged out successfully."))
 })
 
 
