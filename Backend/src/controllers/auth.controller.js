@@ -72,7 +72,11 @@ const logoutUser = asyncHandler(async (req, res) => {
         await req.user._id,
         { $unset: { refreshToken: 1 } }
     )
-    res.status(200).json(new ApiResponse(200, "User logged out successfully."))
+    res.status(200).json(new ApiResponse(200, "User logged out successfully.", {
+        user: {
+            name: req.user.name, email: req.user.email
+        }
+    }))
 })
 
 
@@ -80,7 +84,14 @@ const logoutUser = asyncHandler(async (req, res) => {
 // @route POST /api/auth/dashboard
 // @access PRIVATE
 const getUserInfo = asyncHandler(async (req, res) => {
-    res.status(200).json(new ApiResponse(200, "fetched user info successfully."))
+    if (!req.user.refreshToken) {
+    }
+    res.status(200).json(new ApiResponse(200, "fetched user info successfully.", {
+        user: {
+            name: req.user.name,
+            email: req.user.email
+        }
+    }))
 })
 
 
