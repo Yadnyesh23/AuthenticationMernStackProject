@@ -8,6 +8,16 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
+
+// Middlerwares
+app.use(express.json())
+
+// Routes
+import {router as authRouter} from './routes/auth.route.js'
+
+app.use("/api/auth", authRouter);
+
+// server
 const startServer = async () => {
     try {
         
